@@ -53,6 +53,8 @@ class _ChatPageState extends State<ChatPage> {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
+          'Access-Control-Allow-Origin': '*',
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, HEAD",
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
