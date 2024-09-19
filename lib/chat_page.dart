@@ -47,7 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
-      Hive.box(Constants.userBox).put('${Constants.emailKey}_messages', _messages);
+      Hive.box(Constants.userBox).put('${Constants.emailKey}_messages', json.encode(_messages));
     });
   }
 
@@ -124,9 +124,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _loadMessages() async {
-    final messages = Hive.box(Constants.userBox).get('${Constants.emailKey}_messages', defaultValue: []) as List<types.Message>;
+    // final messages = Hive.box(Constants.userBox).get('${Constants.emailKey}_messages', defaultValue: <types.Message>[]);
     setState(() {
-      _messages = messages;
+      // _messages = json.decode(messages).map<Map<String, dynamic>>((e) => types.Message.fromJson(e)).toList();
     });
   }
 
