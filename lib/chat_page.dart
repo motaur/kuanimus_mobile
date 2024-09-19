@@ -4,8 +4,12 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
+
+import 'agreement_page.dart';
+import 'main.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -34,16 +38,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   // Method to start a new chat, clears messages and generates a new user
-  void _startNewChat() {
-    setState(() {
-      _messages = [];
-      _user = types.User(id: const Uuid().v4(), role: types.Role.user, firstName: 'You'); // Generate new user ID
-    });
+  void _logout() {
+    Hive.box(Constants.userBox).delete(Constants.emailKey);
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => const AgreementPage()));
   }
 
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
+      Hive.box(Constants.userBox).put('${Constants.emailKey}_messages', _messages);
     });
   }
 
@@ -59,7 +63,7 @@ class _ChatPageState extends State<ChatPage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'email': '${_user.id}@mail.com',
+          'email': Hive.box(Constants.userBox).get(Constants.emailKey),
           "language": "en",
           "application": "android",
           'question': message,
@@ -120,7 +124,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _loadMessages() async {
-    final messages = <types.Message>[];
+    final messages = Hive.box(Constants.userBox).get('${Constants.emailKey}_messages', defaultValue: []) as List<types.Message>;
     setState(() {
       _messages = messages;
     });
@@ -132,8 +136,8 @@ class _ChatPageState extends State<ChatPage> {
       title: const Text('Chat'),
       actions: [
         IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: _startNewChat, // Call the method to start a new chat
+          icon: const Icon(Icons.logout),
+          onPressed: _logout, // Call the method to start a new chat
           tooltip: 'Start New Chat',
         ),
       ],
