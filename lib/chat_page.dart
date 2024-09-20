@@ -20,7 +20,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   List<types.Message> _messages = [];
-  types.User _user = types.User(id: const Uuid().v4(), role: types.Role.user, firstName: 'You'); // User ID
+  final types.User _user = types.User(id: Hive.box(Constants.userBox).get(Constants.emailKey) , role: types.Role.user, firstName: 'You'); // User ID
   final String apiUrl = 'https://noam.berezini.com/v1/getAnswer'; // Your API endpoint
 
   // Define the assistant user with an avatar
@@ -47,7 +47,7 @@ class _ChatPageState extends State<ChatPage> {
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
-      Hive.box(Constants.userBox).put('${Constants.emailKey}_messages', json.encode(_messages));
+      Hive.box(Constants.userBox).put('${_user.id}_messages', jsonEncode(_messages.map((e) => e.toJson()).toList()));
     });
   }
 
@@ -124,10 +124,17 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _loadMessages() async {
-    // final messages = Hive.box(Constants.userBox).get('${Constants.emailKey}_messages', defaultValue: <types.Message>[]);
-    setState(() {
-      // _messages = json.decode(messages).map<Map<String, dynamic>>((e) => types.Message.fromJson(e)).toList();
-    });
+    final String? retreived = Hive.box(Constants.userBox).get('${_user.id}_messages', defaultValue: null);
+
+    if (retreived != null) {
+      List<dynamic> decodedList = jsonDecode(retreived);
+      List<types.Message> decoded = decodedList.map((item) =>
+          types.Message.fromJson(item)).toList();
+
+      setState(() {
+        _messages = decoded;
+      });
+    }
   }
 
   @override
