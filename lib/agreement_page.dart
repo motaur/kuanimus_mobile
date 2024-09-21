@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import 'chat_page.dart';
 import 'main.dart';
@@ -22,8 +23,8 @@ class _AgreementPageState extends State<AgreementPage> {
 
   // Launch URLs in the in-app browser
   Future<void> _launchInAppBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: true, forceWebView: true, enableJavaScript: true);
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url);
     } else {
       throw 'Could not launch $url';
     }
