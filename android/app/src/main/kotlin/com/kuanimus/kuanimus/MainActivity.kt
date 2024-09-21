@@ -1,4 +1,4 @@
-package com.kuanimus.kuanimus
+package com.kuanimus_test.noam.android
 
 import io.flutter.embedding.android.FlutterActivity
 
